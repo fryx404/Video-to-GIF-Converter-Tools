@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Video to GIF Converter</title>
+    <link rel="stylesheet" href="/src/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="app-container">
+        <header>
+            <h1>Video to GIF Converter</h1>
+            <p>ブラウザ上で直接mp4/mov動画を高画質なGIF / WebP動画に変換します。</p>
+        </header>
+
+        <main>
+            <!-- Error Alert -->
+            <div id="error-alert" class="alert hidden">
+                <span class="icon">⚠️</span>
+                <span id="error-message">エラーメッセージがここに表示されます</span>
+            </div>
+
+            <div class="split-layout">
+                <!-- Left Column: Upload and Video Preview -->
+                <div class="left-panel">
+                    <div id="drop-zone" class="drop-zone">
+                        <div class="drop-content">
+                            <span class="icon">📁</span>
+                            <p>動画ファイルをここにドラッグ＆ドロップ</p>
+                            <span class="subtext">またはクリックしてファイルを選択 (最大 2GB)</span>
+                        </div>
+                        <input type="file" id="file-input" accept="video/mp4, video/quicktime" hidden />
+                    </div>
+
+                    <div id="video-preview-container" class="preview-container hidden">
+                        <video id="video-preview" controls></video>
+                        <button id="btn-remove-video" class="btn-icon" title="動画を削除">✕</button>
+                    </div>
+
+                    <!-- Premiere-style Timeline -->
+                    <div id="timeline-container" class="timeline-container hidden">
+                        <!-- Top Header -->
+                        <div class="timeline-header" style="justify-content: space-between;">
+                            <div class="timecode-display" id="timecode-display" style="flex: 1; text-align: left;">
+                                00:00:00:00</div>
+                            <div class="playback-controls"
+                                style="display: flex; gap: 4px; flex: 1; justify-content: center;">
+                                <button class="btn-timeline-tool" id="btn-go-in" title="開始位置に移動">⏮</button>
+                                <button class="btn-timeline-tool" id="btn-frame-prev" title="左にコマ送り">⏪</button>
+                                <button class="btn-timeline-tool" id="btn-play-pause" title="再生・停止">⏯</button>
+                                <button class="btn-timeline-tool" id="btn-frame-next" title="右にコマ送り">⏩</button>
+                                <button class="btn-timeline-tool" id="btn-go-out" title="終了位置に移動">⏭</button>
+                            </div>
+                            <div style="flex: 1; text-align: right;">
+                                <button class="btn-timeline-tool" id="btn-loop" title="ループ再生"
+                                    style="border-radius: 4px; padding: 0.3rem 0.8rem; border-color: rgba(255,255,255,0.3);">🔁
+                                    ループ</button>
+                            </div>
+                        </div>
+
+                        <!-- Tracks -->
+                        <div class="timeline-scroll-area" id="timeline-scroll-area">
+                            <div class="timeline-tracks-wrapper" id="timeline-tracks-wrapper">
+                                <div class="timeline-ruler"></div>
+
+                                <div class="timeline-track">
+                                    <div class="trim-area" id="trim-area">
+                                        <div class="trim-handle trim-start" id="trim-start-handle"></div>
+                                        <div class="trim-handle trim-end" id="trim-end-handle"></div>
+                                    </div>
+                                </div>
+
+                                <div class="playhead" id="playhead">
+                                    <div class="playhead-cap"></div>
+                                    <div class="playhead-line"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Bottom Tools -->
+                        <div class="timeline-fine-tune" style="padding: 12px 16px;">
+                            <div class="zoom-control"
+                                style="flex: 1; display: flex; justify-content: flex-start; align-items: center; gap: 8px;">
+                                <label for="zoom-slider" style="margin: 0;">🔍</label>
+                                <input type="range" id="zoom-slider" min="1" max="50" step="1" value="1"
+                                    title="タイムラインを拡大する" style="width: 120px;">
+                                <button class="btn-timeline-tool" id="btn-focus-playhead" title="再生位置を中心にする"
+                                    style="padding: 0.2rem 0.5rem; border-radius: 4px;">⌖ フォーカス</button>
+                            </div>
+
+                            <div class="timeline-tools"
+                                style="display: flex; justify-content: center; gap: 8px; flex: 1;">
+                                <button class="btn-timeline-tool" id="btn-set-in" title="イン点を設定 (I)"
+                                    style="padding: 0.4rem 1rem;">[ 開始</button>
+                                <button class="btn-timeline-tool" id="btn-set-out" title="アウト点を設定 (O)"
+                                    style="padding: 0.4rem 1rem;">終了 ]</button>
+                            </div>
+
+                            <div class="fine-tune-duration" style="flex: 1; justify-content: flex-end;">
+                                <span id="trim-duration-display" class="duration-badge">選択: 0.00秒</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="video-info" class="video-info hidden">
+                        <!-- Javascript will inject info here -->
+                    </div>
+                </div>
+
+                <!-- Right Column: Settings and Output -->
+                <div class="right-panel">
+                    <div class="settings-card">
+                        <h2>設定</h2>
+
+                        <div class="setting-group">
+                            <label for="format-select">フォーマット</label>
+                            <div class="custom-select-wrapper">
+                                <select id="format-select">
+                                    <option value="gif" selected>GIF</option>
+                                    <option value="webp">WebP (アニメーションWebP)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="setting-group">
+                            <label for="scale-select">解像度 (横幅)</label>
+                            <div class="custom-select-wrapper">
+                                <select id="scale-select">
+                                    <option value="480">横幅 480px (軽量)</option>
+                                    <option value="600" selected>横幅 600px (標準/推奨)</option>
+                                    <option value="720">横幅 720px (SD相当)</option>
+                                    <option value="1280">横幅 1280px (HD)</option>
+                                    <option value="1920">横幅 1920px (フルHD)</option>
+                                    <option value="-1">オリジナル (元動画のまま)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="setting-group">
+                            <label for="fps-select">フレームレート (FPS)</label>
+                            <div class="custom-select-wrapper">
+                                <select id="fps-select">
+                                    <option value="5">5 fps</option>
+                                    <option value="10">10 fps</option>
+                                    <option value="15" selected>15 fps (推奨)</option>
+                                    <option value="24">24 fps (滑らか)</option>
+                                    <option value="30">30 fps (高画質)</option>
+                                    <option value="-1">元のFPS</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div id="resolution-warning" class="alert hidden"
+                            style="margin-top: 10px; font-size: 0.85em; background: rgba(255, 150, 0, 0.1); border-left: 4px solid #ff9800;">
+                            <span class="icon"
+                                style="font-size: 1.2em; display: inline-block; vertical-align: top; margin-top: -2px;">⚠️</span>
+                            <span
+                                style="display: inline-block; width: calc(100% - 30px); margin-left: 5px;">※フルHD等の高解像度GIFはファイルサイズが数百MBに膨れ上がり、生成中にブラウザがクラッシュする危険性があります。高画質の場合はWebPフォーマットをおすすめします。</span>
+                        </div>
+
+                        <div class="setting-group hidden" id="trim-group">
+                            <label>トリミング</label>
+                            <div class="setting-hint">動画の下にあるタイムラインを使って、開始位置と終了位置を設定できます。</div>
+                        </div>
+                    </div>
+
+                    <!-- Action and Progress -->
+                    <div class="action-card">
+                        <button id="btn-convert" class="btn-primary" disabled>変換を実行</button>
+
+                        <div id="progress-container" class="progress-wrapper hidden">
+                            <div class="progress-bar">
+                                <div id="progress-fill" class="progress-fill"></div>
+                            </div>
+                            <span id="progress-text" class="progress-text">FFmpegを初期化中...</span>
+                        </div>
+                    </div>
+
+                    <!-- Output Preview -->
+                    <div id="output-container" class="output-card hidden">
+                        <h2>プレビュー</h2>
+                        <img id="gif-preview" src="" alt="生成されたプレビュー">
+                        <a id="btn-download" class="btn-success" href="#" download="output.gif">ダウンロード</a>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Initialization overlay -->
+    <div id="init-overlay" class="overlay">
+        <div class="spinner"></div>
+        <p>FFmpeg Coreを読み込み中...</p>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+</body>
+
+</html>
