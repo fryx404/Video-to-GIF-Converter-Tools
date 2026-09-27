@@ -1,7 +1,7 @@
 {
   "name": "video-to-gif-converter",
   "private": true,
-  "version": "1.0.0",
+  "version": "2.0.0",
   "type": "module",
   "description": "A local web application to convert videos into GIF format without compromising privacy.",
   "author": "fryx404",
@@ -35,6 +35,7 @@
     },
     "win": {
       "target": "nsis",
+      "artifactName": "${productName} Setup ${version}.${ext}",
       "icon": "build/icon.png"
     },
     "nsis": {

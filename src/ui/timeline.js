@@ -20,12 +20,11 @@ export class TimelineController {
         this.sourceFps = 30;
         this.isLooping = false;
         if (this.elements.btnLoop) {
-            this.elements.btnLoop.style.background = '';
-            this.elements.btnLoop.style.color = '';
+            this.elements.btnLoop.setAttribute('aria-pressed', 'false');
         }
         if(this.elements.zoomSlider) this.elements.zoomSlider.value = 1;
         if(this.elements.tracksWrapper) this.elements.tracksWrapper.style.width = '100%';
-        if(this.elements.trimDurationDisplay) this.elements.trimDurationDisplay.textContent = '選択: 0.00秒';
+        if(this.elements.trimDurationDisplay) this.elements.trimDurationDisplay.textContent = '選択範囲: 0.00秒';
         this.updateUI();
         this.setTimecode(0);
     }
@@ -166,9 +165,8 @@ export class TimelineController {
         if (this.elements.btnLoop) {
             this.elements.btnLoop.addEventListener('click', () => {
                 this.isLooping = !this.isLooping;
+                this.elements.btnLoop.setAttribute('aria-pressed', String(this.isLooping));
                 if (this.isLooping) {
-                    this.elements.btnLoop.style.background = '#10a37f';
-                    this.elements.btnLoop.style.color = '#fff';
                     // Auto-seek if out of bounds
                     if (this.callbacks.getCurrentTime) {
                         const currentTime = this.callbacks.getCurrentTime();
@@ -176,9 +174,6 @@ export class TimelineController {
                             if (this.callbacks.onSeek) this.callbacks.onSeek(this.startFrame / this.sourceFps, false);
                         }
                     }
-                } else {
-                    this.elements.btnLoop.style.background = '';
-                    this.elements.btnLoop.style.color = '';
                 }
             });
         }
