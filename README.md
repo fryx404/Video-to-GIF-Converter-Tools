@@ -14,7 +14,15 @@
 
 **[BOOTH で無料配布中](https://fryx404.booth.pm/items/8111497)**（最新版: v2.0.0）
 
-インストーラー・使い方PDF・使い方動画をまとめた zip をダウンロードできます。
+`VideoToGIFConverter_v2.0.0.zip`（約129MB）に、次のファイルをまとめています。
+
+| ファイル | 内容 |
+|---|---|
+| `Video to GIF Converter Setup 2.0.0.exe` | インストーラー |
+| `使い方_v2.0.0.pdf` | 使い方ガイド |
+| `使い方動画_v2.0.0.mp4` | 字幕付きの操作デモ（約1分半） |
+| `はじめにお読みください.txt` | 同梱物・インストール方法・変更点 |
+
 開発継続を応援していただける方向けに「**500円のご支援枠**」もご用意しています（中身は無料版と同一です）。
 
 - 動作環境: Windows 10 / 11（64bit）、メモリ 8GB 以上推奨
@@ -100,7 +108,7 @@ HEVC（H.265）や ProRes など、アプリ内でプレビューできない形
 | レイヤー | 採用技術 |
 |---|---|
 | アプリ | Electron 41（electron-builder で NSIS インストーラー化） |
-| ローカル配信 | Express 5（`127.0.0.1:11020` で `dist/` を配信し、COOP/COEP ヘッダーを付与） |
+| ローカル配信 | Express 5（`127.0.0.1:11020` で `dist/` を配信し、COOP/COEP ヘッダーを付与。使用中なら空きポートへ自動切替） |
 | 画面 | HTML / Vanilla JavaScript / Vanilla CSS（フレームワークなし）、Vite 5 |
 | 動画処理 | `@ffmpeg/ffmpeg` 0.12 / `@ffmpeg/core` 0.12（WebAssembly） |
 | デザイン | fryx404 Pop — CSS変数 + `light-dark()` によるトークン管理 |
@@ -159,4 +167,4 @@ Vercel / Cloudflare Pages / Netlify などに置く場合は、サーバー側�
 
 ## お問い合わせ
 
-不具合報告・ご感想は [X（@fryx404）](https://x.com/fryx404) または GitHub の Issues までお寄せください。
+不具合報告・ご感想は [X（@fryx404）](https://x.com/fryx404) または [GitHub の Issues](https://github.com/fryx404/Video-to-GIF-Converter-Tools/issues) までお寄せください。
